@@ -2,7 +2,6 @@
 #define UTILS_HPP
 
 #include "types.hpp"
-
 #include <string>
 #include <sstream>
 #include <iomanip>

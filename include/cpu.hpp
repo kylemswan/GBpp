@@ -4,7 +4,6 @@
 #include "mmu.hpp"
 #include "types.hpp"
 #include "utils.hpp"
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -12,13 +11,14 @@
 class CPU {
     public:
     void reset();
-    void connectMMU(MMU *mmu);
+    void bindMMU(MMU *target);
     void run();
 
     // return a formatted debug string 
     std::string getState();
 
     int getCycles();
+    void resetCycles();
 
     private:
     u8 A, B, C, D, E, H, L;

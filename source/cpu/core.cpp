@@ -15,13 +15,12 @@ void CPU::reset() {
     cycles = 0;
 }
 
-void CPU::connectMMU(MMU *mmuIn) {
-    mmu = mmuIn;
+void CPU::bindMMU(MMU *target) {
+    mmu = target;
 }
 
 void CPU::run() {
     u8 op = mmu->read8(PC);
-
 
     // check for 0xCB prefixed opcodes
     if (op == 0xCB) {
@@ -64,6 +63,10 @@ std::string CPU::getState() {
 
 int CPU::getCycles() {
     return cycles;
+}
+
+void CPU::resetCycles() {
+    cycles = 0;
 }
 
 void CPU::setZNHC(bool fZ, bool fN, bool fH, bool fC) {

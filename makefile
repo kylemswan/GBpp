@@ -1,11 +1,17 @@
+# environment configuration
+EXE := gbpp
+SRCDIR := source
+INCDIR := include
+BLDDIR := build
+
 # compiler configuration
 CXX := g++
-CXXFLAGS := -g -Wall -MMD -Iinclude/
+CXXFLAGS := -g -Wall -MMD -I$(INCDIR)
 
-# link SFML libraries
+# link required SFML libraries
 LDLIBS := -lsfml-system -lsfml-window -lsfml-graphics
 
-# all directories containing source files
+# all directories / modules containing source files
 DIRS := source source/cpu
 
 # find source files and generate the corresponding object and dependency names
@@ -13,27 +19,24 @@ SRCS := $(foreach DIR, $(DIRS), $(notdir $(wildcard $(DIR)/*.cpp)))
 OBJS := $(patsubst %.cpp, build/%.o, $(SRCS))
 DEPS := $(wildcard build/*.d)
 
-# set up VPATH so that files can be found in their respective (sub) directories
+# set VPATH so that source files are found in their (sub) directories
 VPATH := $(DIRS)
 
 # compilation and linking targets
-cppboy: $(OBJS)
+$(EXE): $(OBJS)
 	$(CXX) $^ -o $@ $(LDLIBS)
 
-build/%.o: %.cpp | build/
+$(BLDDIR)/%.o: %.cpp | $(BLDDIR)
 	$(CXX) -c $< -o $@ $(CXXFLAGS) 
 
-build/:
-	mkdir build/
+$(BLDDIR):
+	mkdir $@
 
 include $(DEPS)
 
 # utility targets
-run:
-	./cppboy
-
 clean:
-	rm -rf build/
+	rm -rf $(BLDDIR)
 
 remove:
-	rm -f cppboy
+	rm -f $(EXE)

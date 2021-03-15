@@ -1,6 +1,5 @@
 # prevent build artefacts, ROMs, and the executable from being committed
 
 build/
-ROMs/
-cppboy
-
+roms/
+gbpp

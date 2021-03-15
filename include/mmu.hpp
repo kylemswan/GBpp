@@ -2,7 +2,6 @@
 #define MMU_HPP
 
 #include "types.hpp"
-
 #include <string>
 #include <fstream>
 
