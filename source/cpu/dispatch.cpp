@@ -1,6 +1,10 @@
 #include "cpu.hpp"
 
 void CPU::exec(u8 op) {
+    if (halt) {
+        return;
+    }
+
     // immediate bytes
     u8 D8 = mmu->read8(PC + 1);
     s8 R8 = (s8)D8;
@@ -289,6 +293,10 @@ void CPU::exec(u8 op) {
 }
 
 void CPU::execCB(u8 op) {
+    if (halt) {
+        return;
+    }
+
     u16 HL = Utils::getPair(H, L);
     u8 &atHL = mmu->getRef(HL);
 

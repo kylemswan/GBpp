@@ -20,10 +20,6 @@ void CPU::bindMMU(MMU *target) {
 }
 
 void CPU::run() {
-    if (halt) {
-        return;
-    }
-
     u8 op = mmu->read8(PC);
 
     // check for 0xCB prefixed opcodes
@@ -102,11 +98,8 @@ int CPU::getCycleCount(u8 op) {
 }
 
 void CPU::callIntVector(u16 addr) {
-    // call vector and reset IME (master enable flag) 
+    // call vector, reset IME, and start running the CPU again if it was halted
     CALL(addr);
     IME = false;
-
-    // halt is also set to false and the PC is incremented to the next op
     halt = false;
-    PC += 1;
 }
