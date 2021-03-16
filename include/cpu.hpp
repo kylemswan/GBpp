@@ -12,16 +12,19 @@ class CPU {
     public:
     void reset();
     void bindMMU(MMU *target);
-    void run();
+
+    // run the next op and return the number of cycles it took
+    int run();
 
     // return a formatted debug string 
     std::string getState();
 
     int cycles;
+    int extraCycles = 0;
 
     // interrupt handling logic
     bool IME = true;
-    bool halt = true;
+    bool halt = false;
     void callIntVector(u16 addr);
 
     private:

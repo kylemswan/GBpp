@@ -200,7 +200,7 @@ void CPU::CALL(u16 addr) {
 void CPU::CALLcond(u16 addr, bool cond) {
     if (cond) {
         CALL(addr);
-        cycles += 12;
+        extraCycles = 12;
     }
 }
 
@@ -212,7 +212,7 @@ void CPU::JP(u16 addr) {
 void CPU::JPcond(u16 addr, bool cond) {
     if (cond) {
         JP(addr);
-        cycles += 4;
+        extraCycles = 4;
     }
 }
 
@@ -224,7 +224,7 @@ void CPU::JR(s8 val) {
 void CPU::JRcond(s8 val, bool cond) {
     if (cond) {
         JR(val);
-        cycles += 4; 
+        extraCycles = 4; 
     }
 }
 
@@ -238,7 +238,7 @@ void CPU::RET() {
 void CPU::RETcond(bool cond) {
     if (cond) {
         RET();
-        cycles += 12;
+        extraCycles = 12;
     }
 }
 

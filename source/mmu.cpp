@@ -2,6 +2,11 @@
 
 void MMU::write8(u16 addr, u8 data) {
     memory[addr] = data;
+
+    // any write to the DIV timing register causes it to be reset
+    if (addr == DIV) {
+        memory[DIV] = 0;
+    }
 }
 
 void MMU::write16(u16 addr, u16 data) {

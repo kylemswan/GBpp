@@ -19,6 +19,10 @@ class Emulator {
     sf::Event ev;
     sf::Clock timer;
 
+    int divCounter = 0;
+    int tmaCounter = 0;
+
+    void updateTimers(int cycles);
     void handleInterrupts();
     void handleEvents();
 };

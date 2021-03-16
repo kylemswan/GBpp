@@ -16,18 +16,79 @@ void Emulator::run() {
             
             // CPU executes 4194304 cycles per second == 69905 per frame
             while (cpu.cycles < 69905) {
-                cpu.run();
+                int elapsedCycles = cpu.run();
+                updateTimers(elapsedCycles);
+                handleInterrupts();
             }
+
             cpu.cycles = 0;
-
-            // update timers, draw graphics, handle interrupts, etc... here
-            handleInterrupts();
-
             timer.restart();
         }
 
         handleEvents();
     }
+}
+
+void Emulator::updateTimers(int cycles) {
+    divCounter += cycles;
+    // DIV is incremented at a rate of 16384 Hz = every 256th cycle
+    if (divCounter >= 256) {
+        u8 &DIV = mmu.getRef(MMU::DIV);
+        DIV++;
+        divCounter = 0;
+    }
+    // TIMA needs to be incremented by the rate defined in TAC and only if the
+    // enable bit is set
+    u8 &TAC = mmu.getRef(MMU::TAC);
+    if (Utils::getBit(TAC, 2)) {
+        tmaCounter += cycles;
+
+        bool B0 = Utils::getBit(TAC, 0);
+        bool B1 = Utils::getBit(TAC, 1);
+        bool incTIMA = false;
+        
+        if (!B1 && !B0) {
+            // increment every 1024 cycles
+            if (tmaCounter >= 1024) {
+                incTIMA = true;
+                tmaCounter = 0;
+            }    
+        } else if (!B1 && B0) {
+            // increment every 16 cycles
+            if (tmaCounter >= 16) {
+                incTIMA = true;
+                tmaCounter = 0;
+            }
+        } else if (B1 && !B0) {
+            // incrememnt every 64 cycles
+            if (tmaCounter >= 64) {
+                incTIMA = true;
+                tmaCounter = 0;
+            }
+        } else {
+            // increment every 256 cycles
+            if (tmaCounter >= 256) {
+                incTIMA = true;
+                tmaCounter = 0;
+            }
+        }
+
+        // TIMA imcremented, but if an overflow occurs it is set to the value
+        // of TMA and a TIMER interrupt is triggered
+        if (incTIMA) {
+            u8 &TIMA = mmu.getRef(MMU::TIMA); 
+            if (TIMA == 0xFF) {
+                // overflow is about to happen
+                u8 &TMA = mmu.getRef(MMU::TMA);
+                u8 &IF = mmu.getRef(MMU::IF);
+                Utils::setBit(IF, 2, true);
+                TIMA = TMA;
+            } else {
+                TIMA++;
+            }
+        }
+    }
+
 }
 
 void Emulator::handleInterrupts() {

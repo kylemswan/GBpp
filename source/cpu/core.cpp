@@ -19,7 +19,9 @@ void CPU::bindMMU(MMU *target) {
     mmu = target;
 }
 
-void CPU::run() {
+int CPU::run() {
+    extraCycles = 0;
+
     u8 op = mmu->read8(PC);
 
     // check for 0xCB prefixed opcodes
@@ -36,6 +38,9 @@ void CPU::run() {
     branched = false;
 
     cycles += getCycleCount(op);
+
+    // return cycles taken to be used by the timers
+    return getCycleCount(op) + extraCycles;
 }
 
 std::string CPU::getState() {
