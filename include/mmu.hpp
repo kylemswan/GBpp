@@ -8,7 +8,7 @@
 class MMU {
     public:
     // memory location constants
-    static const u16 IE = 0xFFFF, IF = 0xFF0F;
+    static const u16 JOYP = 0xFF00, IE = 0xFFFF, IF = 0xFF0F;
 
     // attempt to write / read data into memory - this will eventually
     // contain more logic pertaining to read / write only sections of RAM

@@ -71,14 +71,71 @@ void Emulator::handleInterrupts() {
 }
 
 void Emulator::handleEvents() {
+    // clear all key states first - note that true -> unpressed
+    u8 &JOYP = mmu.getRef(MMU::JOYP);
+    for (int i = 0; i < 4; i++) {
+        Utils::setBit(JOYP, i, true);
+    }
+
+    // now handle new events
     while (win.pollEvent(ev)) {
         // check for window 'X' clicks
         if (ev.type == sf::Event::Closed) {
             win.close();
+            return;
         }
-        // check for 'ESC' key presses
-        if (ev.key.code == sf::Keyboard::Escape) {
-            win.close();
+
+        // check for key presses
+        if (ev.type == sf::Event::KeyPressed) {
+            // handle escape button first
+            if (ev.key.code == sf::Keyboard::Escape) {
+                win.close();
+                return;
+            }
+            // update the joypad register, depending on bit 4 and 5 of JOYP
+            if (!Utils::getBit(JOYP, 5)) {
+                // update button key states (start, select, B, A)
+                switch (ev.key.code) {
+                    case sf::Keyboard::Q:   // GB START
+                        Utils::setBit(JOYP, 3, false);
+                        break;
+
+                    case sf::Keyboard::W:   // GB SELECT
+                        Utils::setBit(JOYP, 2, false);
+                        break;
+
+                    case sf::Keyboard::A:   // GB B
+                        Utils::setBit(JOYP, 1, false);
+                        break;
+
+                    case sf::Keyboard::S:   // GB A
+                        Utils::setBit(JOYP, 0, false);
+                        break;
+                }
+
+            } else if (!Utils::getBit(JOYP, 4)) {
+                // update d-pad key states (down, up, left, right)
+                switch (ev.key.code) {
+                    case sf::Keyboard::Down:
+                        Utils::setBit(JOYP, 3, false);
+                        break;
+
+                    case sf::Keyboard::Up:
+                        Utils::setBit(JOYP, 2, false);
+                        break;
+
+                    case sf::Keyboard::Left:
+                        Utils::setBit(JOYP, 1, false);
+                        break;
+
+                    case sf::Keyboard::Right:
+                        Utils::setBit(JOYP, 0, false);
+                        break;
+                }
+            }
+            // since a keypress occured, request the JOYPAD interrupt
+            u8 &IF = mmu.getRef(MMU::IF);
+            Utils::setBit(IF, 4, true);
         }
     }
 }
